@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.coyne.JokeClass;
@@ -18,12 +19,15 @@ import static com.udacity.coyne.androidlibrary.MainJokeActivity.JOKE_EXTRA;
 
 public class MainActivity extends AppCompatActivity {
 
+    ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        progressBar = (ProgressBar)findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
 
@@ -51,7 +55,25 @@ public class MainActivity extends AppCompatActivity {
 
     public void tellJoke(View view) {
 
-        new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Manfred"));
+//        new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Manfred"));
+        EndpointsAsyncTask task = new EndpointsAsyncTask(){
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                progressBar.setVisibility(View.INVISIBLE);
+                Intent intent = new Intent(getApplicationContext(), MainJokeActivity.class);
+                intent.putExtra(JOKE_EXTRA, s);
+                startActivity(intent);
+            }
+        };
+        task.execute(new Pair<Context, String>(this, "Manfred"));
+
 
 //        JokeClass jokeClass = new JokeClass();
 //        String joke = jokeClass.GetRandomJoke();
